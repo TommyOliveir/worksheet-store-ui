@@ -1,63 +1,48 @@
-import { apiClient } from "@/shared/lib/api-client";
-import AddToCartButton from "@/features/cart/components/AddToCartButton";
-import Image from "next/image";
+import { cache } from "react";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import WorksheetDetail from "@/features/worksheets/components/WorksheetDetail";
+import { fetchWorksheetBySlug } from "@/features/worksheets/queries/worksheetQueries";
+import { ApiError } from "@/shared/api/client";
+import type { Worksheet } from "@/shared/types/worksheet";
 
-interface PageProps {
-  params: { slug: string };
+// Memoized per request so generateMetadata and the page share one fetch.
+// Resolving here also settles the 404 before the response starts streaming,
+// which is what lets notFound() set a real 404 status.
+const getWorksheet = cache((slug: string): Promise<Worksheet> =>
+  fetchWorksheetBySlug(slug).catch((error: unknown) => {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+    throw error;
+  }),
+);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const worksheet = await getWorksheet(slug);
+
+  return {
+    title: worksheet.title,
+    description: worksheet.description,
+  };
 }
 
-async function getWorksheet(slug: string) {
-  try {
-    const res = await apiClient.get(`/worksheets/${slug}`);
-    return res.data;
-  } catch (err) {
-    return null;
-  }
-}
-
-export default async function WorksheetDetailPage({ params }: PageProps) {
-  const worksheet = await getWorksheet(params.slug);
-
-  if (!worksheet) {
-    return <div className="container mx-auto p-8">Worksheet not found.</div>;
-  }
+export default async function WorksheetDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const worksheet = await getWorksheet(slug);
 
   return (
-    <main className="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="border rounded-lg p-4 bg-gray-50 flex flex-col items-center">
-        <h2 className="text-sm font-medium text-gray-500 mb-2">
-          Watermarked Preview
-        </h2>
-        <div className="relative w-full h-[500px]">
-          <Image
-            src={worksheet.previewImageUrl}
-            alt={`${worksheet.title} sample`}
-            fill
-            className="object-contain rounded"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col justify-between">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
-            {worksheet.gradeLevel} • {worksheet.subject}
-          </span>
-          <h1 className="text-3xl font-bold mt-2 text-gray-900">
-            {worksheet.title}
-          </h1>
-          <p className="text-2xl font-semibold text-gray-800 mt-4">
-            ${worksheet.price.toFixed(2)}
-          </p>
-          <p className="text-gray-600 mt-4 leading-relaxed">
-            {worksheet.description}
-          </p>
-        </div>
-
-        <div className="mt-8">
-          <AddToCartButton worksheet={worksheet} />
-        </div>
-      </div>
+    <main className="container mx-auto px-4 py-8">
+      <WorksheetDetail worksheet={worksheet} />
     </main>
   );
 }

@@ -2,9 +2,9 @@ export type CheckoutSessionStatus = "paid" | "pending" | "failed";
 
 export interface OrderItem {
   id: string;
+  worksheetId: string;
   title: string;
   price: number;
-  downloadUrl?: string;
 }
 
 export interface VerifiedCheckoutSession {

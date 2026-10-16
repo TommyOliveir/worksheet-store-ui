@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useVerifyCheckoutSession } from "@/features/checkout/hooks/useVerifyCheckoutSession";
 import { StatusCard } from "@/features/checkout/components/StatusCard";
 import { ContinueShoppingButton } from "@/features/checkout/components/ContinueShoppingButton";
+import { DownloadButton } from "@/features/checkout/components/DownloadButton";
 
 export default function OrderSuccessContent() {
   const searchParams = useSearchParams();
@@ -127,13 +128,10 @@ export default function OrderSuccessContent() {
                 <span className="text-muted-foreground">
                   ${item.price.toFixed(2)}
                 </span>
-                {item.downloadUrl && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    render={<a href={item.downloadUrl}>Download</a>}
-                  />
-                )}
+                <DownloadButton
+                  sessionId={sessionId}
+                  worksheetId={item.worksheetId}
+                />
               </div>
             </li>
           ))}

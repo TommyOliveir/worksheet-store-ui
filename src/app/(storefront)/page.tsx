@@ -1,9 +1,14 @@
 import Link from "next/link";
-import { MOCK_WORKSHEETS } from "./worksheets/page";
-import WorksheetCard from "@/features/worksheets/components/WorksheetCard";
+import WorksheetGrid from "@/features/worksheets/components/WorksheetGrid";
+import { fetchWorksheets } from "@/features/worksheets/queries/worksheetQueries";
 import Image from "next/image";
 
-export default function HomePage() {
+const FEATURED_LIMIT = 3;
+
+export default async function HomePage() {
+  const worksheets = await fetchWorksheets();
+  const featured = worksheets.slice(0, FEATURED_LIMIT);
+
   return (
     <div className="w-full">
       {/* Full-Screen, Edge-to-Edge Hero Section (No padding/margins, no blur) */}
@@ -80,11 +85,10 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold text-slate-900 mb-8">
           Featured Worksheets
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {MOCK_WORKSHEETS.map((worksheet) => (
-            <WorksheetCard key={worksheet.id} worksheet={worksheet} />
-          ))}
-        </div>
+        <WorksheetGrid
+          worksheets={featured}
+          emptyMessage="No worksheets available yet."
+        />
       </section>
     </div>
   );

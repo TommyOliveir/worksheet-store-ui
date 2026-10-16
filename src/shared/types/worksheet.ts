@@ -1,3 +1,9 @@
+// Shared: the worksheets catalog, the cart store and checkout all read this.
+export interface WorksheetAuthor {
+  id: string;
+  fullName: string;
+}
+
 export interface Worksheet {
   id: string;
   slug: string;
@@ -7,14 +13,7 @@ export interface Worksheet {
   gradeLevel: string;
   subject: string;
   previewImageUrl: string;
+  author: WorksheetAuthor;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface WorksheetFilterParams {
-  query?: string;
-  gradeLevel?: string;
-  subject?: string;
-  page?: number;
-  limit?: number;
 }

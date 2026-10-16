@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/shared/lib/api-client";
-import { VerifiedCheckoutSession } from "@/shared/types/order";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { VerifiedCheckoutSession } from "@/features/checkout/types/order.types";
 
 async function fetchCheckoutSession(
   sessionId: string,
@@ -15,7 +16,7 @@ async function fetchCheckoutSession(
 
 export function useVerifyCheckoutSession(sessionId: string | null) {
   return useQuery({
-    queryKey: ["checkout-session", sessionId],
+    queryKey: queryKeys.checkout.session(sessionId as string),
     queryFn: () => fetchCheckoutSession(sessionId as string),
     enabled: Boolean(sessionId),
     retry: 1,

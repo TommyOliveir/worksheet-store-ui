@@ -1,13 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Worksheet } from "@/shared/types/worksheet";
+import type { Worksheet } from "@/shared/types/worksheet";
 
 export default function WorksheetCard({ worksheet }: { worksheet: Worksheet }) {
   return (
     <div className="border rounded-lg bg-white overflow-hidden shadow-sm flex flex-col w-full">
       <div className="relative w-full h-48 bg-slate-100">
         <Image
-          src={worksheet.previewImageUrl || "/placeholder-preview.png"}
+          src={worksheet.previewImageUrl}
           alt={worksheet.title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
@@ -18,7 +18,7 @@ export default function WorksheetCard({ worksheet }: { worksheet: Worksheet }) {
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
           <span className="text-xs font-semibold text-indigo-600 uppercase">
-            {worksheet.gradeLevel}
+            {worksheet.gradeLevel} • {worksheet.subject}
           </span>
           <h3 className="font-bold text-lg mt-1 text-slate-900">
             {worksheet.title}
