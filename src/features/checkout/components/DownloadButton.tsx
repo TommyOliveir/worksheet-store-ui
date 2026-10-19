@@ -2,28 +2,21 @@
 
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGenerateDownloadUrl } from "@/features/checkout/hooks/useGenerateDownloadUrl";
+import { useDownloadWorksheet } from "@/features/checkout/hooks/useDownloadWorksheet";
 
 interface DownloadButtonProps {
-  sessionId: string;
   worksheetId: string;
 }
 
-export function DownloadButton({
-  sessionId,
-  worksheetId,
-}: DownloadButtonProps) {
-  const { mutate, isPending, isError } = useGenerateDownloadUrl();
+export function DownloadButton({ worksheetId }: DownloadButtonProps) {
+  const { mutate, isPending, isError } = useDownloadWorksheet();
 
   const handleClick = () => {
-    mutate(
-      { sessionId, worksheetId },
-      {
-        onSuccess: (data) => {
-          window.location.href = data.downloadUrl;
-        },
+    mutate(worksheetId, {
+      onSuccess: (data) => {
+        window.location.href = data.downloadUrl;
       },
-    );
+    });
   };
 
   return (

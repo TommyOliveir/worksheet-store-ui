@@ -6,8 +6,6 @@ export const ENDPOINTS = {
   orders: {
     checkout: "/orders/checkout",
     session: (sessionId: string) => `/orders/session/${sessionId}`,
-    sessionDownload: (sessionId: string, worksheetId: string) =>
-      `/orders/session/${sessionId}/download/${worksheetId}`,
   },
   worksheets: {
     list: "/worksheets",

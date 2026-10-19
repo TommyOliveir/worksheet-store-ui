@@ -23,6 +23,12 @@ export default function Navbar() {
           </Link>
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
+              <Link
+                href="/purchases"
+                className="text-sm font-medium text-slate-700 hover:text-indigo-600"
+              >
+                My purchases
+              </Link>
               <span className="text-sm text-slate-600">
                 Hi, {user?.fullName.split(" ")[0]}
               </span>

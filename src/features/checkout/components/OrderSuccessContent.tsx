@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CircleCheckBig, Clock, Loader2, XCircle } from "lucide-react";
+import { CircleCheckBig, Clock, Loader2, LogIn, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { useVerifyCheckoutSession } from "@/features/checkout/hooks/useVerifyCheckoutSession";
 import { StatusCard } from "@/features/checkout/components/StatusCard";
 import { ContinueShoppingButton } from "@/features/checkout/components/ContinueShoppingButton";
@@ -14,9 +16,10 @@ export default function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const clearCart = useCartStore((state) => state.clearCart);
+  const { isAuthenticated, isHydrated } = useAuth();
 
   const { data, isPending, isError, error, refetch, isRefetching } =
-    useVerifyCheckoutSession(sessionId);
+    useVerifyCheckoutSession(isAuthenticated ? sessionId : null);
 
   useEffect(() => {
     if (data?.status === "paid") {
@@ -32,6 +35,31 @@ export default function OrderSuccessContent() {
         description="We couldn't find a checkout session to verify. If you just completed a payment, check your email for a receipt."
       >
         <ContinueShoppingButton />
+      </StatusCard>
+    );
+  }
+
+  if (!isHydrated) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    const redirect = `/order/success?${searchParams.toString()}`;
+    return (
+      <StatusCard
+        icon={<LogIn className="size-12 text-primary" />}
+        title="Log in to view your order"
+        description="For your security, order details and downloads are only available to the account that made the purchase."
+      >
+        <Button
+          className="mt-6"
+          nativeButton={false}
+          render={
+            <Link href={`/login?redirect=${encodeURIComponent(redirect)}`}>
+              Log in
+            </Link>
+          }
+        />
       </StatusCard>
     );
   }
@@ -128,10 +156,7 @@ export default function OrderSuccessContent() {
                 <span className="text-muted-foreground">
                   ${item.price.toFixed(2)}
                 </span>
-                <DownloadButton
-                  sessionId={sessionId}
-                  worksheetId={item.worksheetId}
-                />
+                <DownloadButton worksheetId={item.worksheetId} />
               </div>
             </li>
           ))}
