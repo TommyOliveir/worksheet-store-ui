@@ -9,10 +9,12 @@ async function fetchMyOrders(): Promise<PurchaseOrder[]> {
   return res.data;
 }
 
-export function useMyOrders(enabled: boolean) {
+// Keyed by user id: a shared key would let the next person to log in on this
+// browser read the previous one's orders out of the cache.
+export function useMyOrders(userId: string | undefined) {
   return useQuery({
-    queryKey: ["orders", "mine"] as const,
+    queryKey: ["orders", "mine", userId] as const,
     queryFn: fetchMyOrders,
-    enabled,
+    enabled: Boolean(userId),
   });
 }

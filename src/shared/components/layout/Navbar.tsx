@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useCartStore } from "@/store/useCartStore";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export default function Navbar() {
   const { cart, toggleCart } = useCartStore();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { logout, isLoggingOut } = useLogout();
 
   return (
     <header className="border-b bg-white sticky top-0 z-40">
@@ -33,10 +35,11 @@ export default function Navbar() {
                 Hi, {user?.fullName.split(" ")[0]}
               </span>
               <button
-                onClick={logout}
-                className="text-sm font-medium text-slate-700 hover:text-indigo-600"
+                onClick={() => logout()}
+                disabled={isLoggingOut}
+                className="text-sm font-medium text-slate-700 hover:text-indigo-600 disabled:opacity-60"
               >
-                Log out
+                {isLoggingOut ? "Logging out..." : "Log out"}
               </button>
             </div>
           ) : (

@@ -4,12 +4,7 @@ import type {
   AuthResponse,
   LoginPayload,
   RegisterPayload,
-  UserRole,
 } from "@/features/auth/types/auth.types";
-
-// Storefront signup is buyer-only: role is never taken from user input,
-// otherwise anyone could self-register as ADMIN.
-const SIGNUP_ROLE: UserRole = "BUYER";
 
 export function loginMutationOptions() {
   return {
@@ -22,11 +17,21 @@ export function loginMutationOptions() {
 
 export function registerMutationOptions() {
   return {
+    // Role isn't sent: the API assigns BUYER itself. It used to be a field on
+    // the request, which meant the "buyer only" rule lived in the browser and
+    // a plain curl could ask for ADMIN.
     mutationFn: (payload: RegisterPayload) =>
-      post<AuthResponse, RegisterPayload & { role: UserRole }>(
-        ENDPOINTS.auth.register,
-        { ...payload, role: SIGNUP_ROLE },
-        { requiresAuth: false },
-      ),
+      post<AuthResponse, RegisterPayload>(ENDPOINTS.auth.register, payload, {
+        requiresAuth: false,
+      }),
+  };
+}
+
+export function logoutMutationOptions() {
+  return {
+    mutationFn: () =>
+      post<void, undefined>(ENDPOINTS.auth.logout, undefined, {
+        skipAuthRedirect: true,
+      }),
   };
 }

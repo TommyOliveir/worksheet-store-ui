@@ -1,4 +1,6 @@
-export type UserRole = "TEACHER" | "BUYER" | "ADMIN";
+// Not exported: the API assigns the role, so nothing outside this file names
+// the type any more.
+type UserRole = "TEACHER" | "BUYER" | "ADMIN";
 
 export interface AuthUser {
   id: string;

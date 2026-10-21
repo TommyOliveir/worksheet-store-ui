@@ -1,8 +1,13 @@
 import { getStoredToken } from "@/features/auth/tokenStore";
 import { API_BASE_URL } from "./config";
+import { notifyUnauthorized } from "./session-events";
 
 type RequestOptions = RequestInit & {
   requiresAuth?: boolean;
+  // Set on calls that handle their own 401. Logout is the case: a session the
+  // server has already dropped answers 401, and that is a finished logout
+  // rather than a session to react to.
+  skipAuthRedirect?: boolean;
 };
 
 export class ApiError extends Error {
@@ -69,6 +74,19 @@ async function request<T>(url: string, options?: RequestOptions): Promise<T> {
 
   if (!response.ok) {
     const errorBody: unknown = await response.json().catch(() => null);
+
+    // A 401 on an authenticated call means the session is gone server-side —
+    // revoked from elsewhere, or lapsed. Skipped when the call sent no
+    // credentials, so a wrong password on the login form isn't mistaken for
+    // a lost session and doesn't bounce the user off the page.
+    if (
+      response.status === 401 &&
+      options?.requiresAuth !== false &&
+      !options?.skipAuthRedirect
+    ) {
+      notifyUnauthorized();
+    }
+
     throw new ApiError(response.status, extractErrorMessage(errorBody));
   }
 

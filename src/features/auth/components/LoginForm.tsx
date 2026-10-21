@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/shared/api/client";
 import { useLogin } from "@/features/auth/hooks/useLogin";
+import { safeRedirectPath } from "@/features/auth/lib/safeRedirect";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -29,7 +30,7 @@ export function LoginForm() {
   const onSubmit = (values: LoginFormValues) => {
     login(values, {
       onSuccess: () => {
-        router.push(searchParams.get("redirect") || "/worksheets");
+        router.push(safeRedirectPath(searchParams.get("redirect")));
       },
     });
   };

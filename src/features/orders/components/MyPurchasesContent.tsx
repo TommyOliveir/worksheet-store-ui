@@ -10,9 +10,10 @@ import { ContinueShoppingButton } from "@/features/checkout/components/ContinueS
 import { DownloadButton } from "@/features/checkout/components/DownloadButton";
 
 export default function MyPurchasesContent() {
-  const { isAuthenticated, isHydrated } = useAuth();
-  const { data, isPending, isError, refetch, isRefetching } =
-    useMyOrders(isAuthenticated);
+  const { user, isAuthenticated, isHydrated } = useAuth();
+  const { data, isPending, isError, refetch, isRefetching } = useMyOrders(
+    user?.id,
+  );
 
   if (!isHydrated) {
     return null;
