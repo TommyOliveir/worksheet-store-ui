@@ -29,6 +29,8 @@ export function registerMutationOptions() {
 
 export function logoutMutationOptions() {
   return {
+    // The server clears the httpOnly cookies on its response; the browser
+    // can't remove them itself.
     mutationFn: () =>
       post<void, undefined>(ENDPOINTS.auth.logout, undefined, {
         skipAuthRedirect: true,

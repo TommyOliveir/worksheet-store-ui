@@ -1,8 +1,10 @@
-import { getStoredToken } from "@/features/auth/tokenStore";
 import { API_BASE_URL } from "./config";
+import { refreshSession } from "./refresh";
 import { notifyUnauthorized } from "./session-events";
 
 type RequestOptions = RequestInit & {
+  // False for calls made without a session (login, register), whose 401
+  // means bad credentials and must not trigger a token refresh.
   requiresAuth?: boolean;
   // Set on calls that handle their own 401. Logout is the case: a session the
   // server has already dropped answers 401, and that is a finished logout
@@ -50,39 +52,49 @@ function extractErrorMessage(body: unknown): string {
 }
 
 async function request<T>(url: string, options?: RequestOptions): Promise<T> {
-  const headers = new Headers(options?.headers);
+  const { requiresAuth, skipAuthRedirect, ...init } = options ?? {};
+  const headers = new Headers(init.headers);
 
   if (
-    options?.body &&
-    !(options.body instanceof FormData) &&
+    init.body &&
+    !(init.body instanceof FormData) &&
     !headers.has("Content-Type")
   ) {
     headers.set("Content-Type", "application/json");
   }
 
-  if (options?.requiresAuth !== false) {
-    const accessToken = getStoredToken();
-    if (accessToken) {
-      headers.set("Authorization", `Bearer ${accessToken}`);
-    }
-  }
+  // The session is carried by httpOnly cookies, which the browser attaches
+  // itself; this code never sees the tokens.
+  const send = () =>
+    fetch(`${API_BASE_URL}${url}`, {
+      ...init,
+      headers,
+      credentials: "include",
+    });
 
-  const response = await fetch(`${API_BASE_URL}${url}`, {
-    ...options,
-    headers,
-  });
+  let response = await send();
+
+  // The access token lives for minutes, so a 401 usually just means it
+  // expired. Refresh once and retry before concluding anything.
+  if (
+    response.status === 401 &&
+    requiresAuth !== false &&
+    (await refreshSession())
+  ) {
+    response = await send();
+  }
 
   if (!response.ok) {
     const errorBody: unknown = await response.json().catch(() => null);
 
-    // A 401 on an authenticated call means the session is gone server-side —
-    // revoked from elsewhere, or lapsed. Skipped when the call sent no
-    // credentials, so a wrong password on the login form isn't mistaken for
-    // a lost session and doesn't bounce the user off the page.
+    // Still 401 after a refresh: the session is gone server-side — revoked
+    // from elsewhere, or lapsed. Skipped when the call sent no credentials,
+    // so a wrong password on the login form isn't mistaken for a lost
+    // session and doesn't bounce the user off the page.
     if (
       response.status === 401 &&
-      options?.requiresAuth !== false &&
-      !options?.skipAuthRedirect
+      requiresAuth !== false &&
+      !skipAuthRedirect
     ) {
       notifyUnauthorized();
     }

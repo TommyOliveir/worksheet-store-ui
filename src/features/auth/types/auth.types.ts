@@ -9,8 +9,8 @@ export interface AuthUser {
   role: UserRole;
 }
 
+// The tokens themselves are set as httpOnly cookies and never reach this code.
 export interface AuthResponse {
-  accessToken: string;
   user: AuthUser;
 }
 

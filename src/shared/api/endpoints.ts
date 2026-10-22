@@ -3,6 +3,10 @@ export const ENDPOINTS = {
     login: "/auth/login",
     register: "/auth/register",
     logout: "/auth/logout",
+    refresh: "/auth/refresh",
+  },
+  users: {
+    me: "/users/me",
   },
   orders: {
     checkout: "/orders/checkout",
