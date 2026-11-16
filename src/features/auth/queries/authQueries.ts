@@ -2,6 +2,7 @@ import { post } from "@/shared/api/client";
 import { ENDPOINTS } from "@/shared/api/endpoints";
 import type {
   AuthResponse,
+  GoogleLoginPayload,
   LoginPayload,
   RegisterPayload,
 } from "@/features/auth/types/auth.types";
@@ -10,6 +11,17 @@ export function loginMutationOptions() {
   return {
     mutationFn: (payload: LoginPayload) =>
       post<AuthResponse, LoginPayload>(ENDPOINTS.auth.login, payload, {
+        requiresAuth: false,
+      }),
+  };
+}
+
+export function googleLoginMutationOptions() {
+  return {
+    // requiresAuth: false for the same reason as login: a 401 here means the
+    // Google credential was rejected, not that a session needs refreshing.
+    mutationFn: (payload: GoogleLoginPayload) =>
+      post<AuthResponse, GoogleLoginPayload>(ENDPOINTS.auth.google, payload, {
         requiresAuth: false,
       }),
   };

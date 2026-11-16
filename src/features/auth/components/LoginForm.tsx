@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { ApiError } from "@/shared/api/client";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { safeRedirectPath } from "@/features/auth/lib/safeRedirect";
+import { AuthDivider } from "@/features/auth/components/AuthDivider";
+import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -27,12 +29,12 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
+  const goToRedirect = () => {
+    router.push(safeRedirectPath(searchParams.get("redirect")));
+  };
+
   const onSubmit = (values: LoginFormValues) => {
-    login(values, {
-      onSuccess: () => {
-        router.push(safeRedirectPath(searchParams.get("redirect")));
-      },
-    });
+    login(values, { onSuccess: goToRedirect });
   };
 
   const errorMessage = loginError
@@ -88,6 +90,8 @@ export function LoginForm() {
           {isLoggingIn ? "Logging in..." : "Log in"}
         </Button>
       </form>
+      <AuthDivider />
+      <GoogleSignInButton mode="signin" onSignedIn={goToRedirect} />
       <p className="text-sm text-muted-foreground text-center mt-6">
         Don&apos;t have an account?{" "}
         <Link href="/register" className="text-primary hover:underline">

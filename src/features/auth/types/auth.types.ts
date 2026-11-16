@@ -19,6 +19,15 @@ export interface LoginPayload {
   password: string;
 }
 
+// `credential` is the ID token (a JWT) Google Identity Services returns. The
+// API verifies it; the browser never decodes or trusts it.
+export interface GoogleLoginPayload {
+  credential: string;
+}
+
+// Which page the Google button sits on; picks the button's wording.
+export type GoogleSignInMode = "signin" | "signup";
+
 export interface RegisterPayload {
   email: string;
   password: string;

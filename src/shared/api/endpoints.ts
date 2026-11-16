@@ -2,6 +2,7 @@ export const ENDPOINTS = {
   auth: {
     login: "/auth/login",
     register: "/auth/register",
+    google: "/auth/google",
     logout: "/auth/logout",
     refresh: "/auth/refresh",
   },

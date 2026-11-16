@@ -8,6 +8,8 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/shared/api/client";
 import { useRegister } from "@/features/auth/hooks/useRegister";
+import { AuthDivider } from "@/features/auth/components/AuthDivider";
+import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 
 const registerSchema = z.object({
   fullName: z.string().min(1, "Name is required"),
@@ -30,12 +32,12 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
 
+  const goToWorksheets = () => {
+    router.push("/worksheets");
+  };
+
   const onSubmit = (values: RegisterFormValues) => {
-    registerUser(values, {
-      onSuccess: () => {
-        router.push("/worksheets");
-      },
-    });
+    registerUser(values, { onSuccess: goToWorksheets });
   };
 
   const errorMessage = registerError
@@ -108,6 +110,8 @@ export function RegisterForm() {
           {isRegistering ? "Creating account..." : "Create account"}
         </Button>
       </form>
+      <AuthDivider />
+      <GoogleSignInButton mode="signup" onSignedIn={goToWorksheets} />
       <p className="text-sm text-muted-foreground text-center mt-6">
         Already have an account?{" "}
         <Link href="/login" className="text-primary hover:underline">
