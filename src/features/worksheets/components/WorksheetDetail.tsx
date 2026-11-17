@@ -1,5 +1,5 @@
 import Image from "next/image";
-import AddToCartButton from "@/features/cart/components/AddToCartButton";
+import { WorksheetPurchaseAction } from "@/features/worksheets/components/WorksheetPurchaseAction";
 import type { Worksheet } from "@/shared/types/worksheet";
 
 export default function WorksheetDetail({
@@ -43,7 +43,7 @@ export default function WorksheetDetail({
         </div>
 
         <div className="mt-8">
-          <AddToCartButton worksheet={worksheet} />
+          <WorksheetPurchaseAction worksheet={worksheet} />
         </div>
       </div>
     </div>

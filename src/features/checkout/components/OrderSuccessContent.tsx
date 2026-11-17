@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { CircleCheckBig, Clock, Loader2, LogIn, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
@@ -16,6 +17,7 @@ export default function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const clearCart = useCartStore((state) => state.clearCart);
+  const queryClient = useQueryClient();
   const { isAuthenticated, isHydrated } = useAuth();
 
   const { data, isPending, isError, error, refetch, isRefetching } =
@@ -24,8 +26,11 @@ export default function OrderSuccessContent() {
   useEffect(() => {
     if (data?.status === "paid") {
       clearCart();
+      // Purchases are cached for minutes; without this the product page
+      // would still offer "Add to Cart" for what was just bought.
+      queryClient.invalidateQueries({ queryKey: ["orders", "mine"] });
     }
-  }, [data?.status, clearCart]);
+  }, [data?.status, clearCart, queryClient]);
 
   if (!sessionId) {
     return (
