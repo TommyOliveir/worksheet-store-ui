@@ -7,7 +7,11 @@ export default async function WorksheetsPage() {
 
   return (
     <div className="min-h-screen w-full py-12 px-6 sm:px-12 md:px-16 overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+      {/* Clips the scale-105 zoom. This box is sized to the viewport, not to
+          the wrapper above (which isn't positioned), so the wrapper's own
+          overflow-hidden never clipped it and the zoom spilled into a
+          horizontal scrollbar. */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
         <Image
           src="/hero-bg.jpg"
           alt="Page background"
